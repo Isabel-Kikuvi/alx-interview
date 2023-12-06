@@ -1,6 +1,9 @@
 #!/usr/bin/python3
+"""Lock boxes model"""
+
 
 def canUnlockAll(boxes):
+    """"a method that determines if all the boxes can be opened"""
     if not boxes or not boxes[0]:
         return False
 
