@@ -10,13 +10,18 @@ def minOperations(n):
     """
     if n < 2:
         return 0
+    else:
+        h_counter = 1
+        opers = 1
+        copy_size = 1
 
-    min_ops = [float('inf')] * (n + 1)
-    min_ops[1] = 0
+        while h_counter != n:
+            if ((n % h_counter) == 0) and (h_counter != 1):
+                copy_size = h_counter
+                h_counter += copy_size
+                opers += 2
+            else:
+                h_counter += copy_size
+                opers += 1
 
-    for i in range(2, n + 1):
-        for j in range(2, i + 1):
-            if i % j == 0:
-                min_ops[i] = min(min_ops[i], min_ops[j] + i // j)
-
-    return min_ops[n]
+    return opers
