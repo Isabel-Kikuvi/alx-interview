@@ -8,7 +8,7 @@ def minOperations(n):
     """
     Calculate the fewest no of ops needed to result in exactly n H characters.
     """
-    if n <= 1:
+    if n < 2:
         return 0
 
     min_ops = [float('inf')] * (n + 1)
