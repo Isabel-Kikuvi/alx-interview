@@ -1,30 +1,37 @@
 #!/usr/bin/python3
 
-"""Checks if if given data set represents a valid UTF-8 encoding """
+"""Checks if given data set represents a valid UTF-8 encoding """
 
 
 def validUTF8(data):
-    num_bytes = 0
-    mask1 = 1 << 7
-    mask2 = 1 << 6
+    def is_start_of_char(byte):
+        return (byte & 0b10000000) == 0b00000000
 
-    for num in data:
-        byte = num & 0xFF
+    def is_continuation(byte):
+        return (byte & 0b11000000) == 0b10000000
 
-        if num_bytes == 0:
-            if (byte & mask1) == 0:
-                num_bytes = 0
-            elif (byte & mask2) == 0:
-                return False
-            else:
-                num_leading_ones = 0
-                while (byte & mask1) != 0:
-                    num_leading_ones += 1
-                    byte <<= 1
-                num_bytes = num_leading_ones
+    i = 0
+    while i < len(data):
+        current_byte = data[i]
+
+        if is_start_of_char(current_byte):
+            num_bytes = 1
+        elif (current_byte & 0b11100000) == 0b11000000:
+            num_bytes = 2
+        elif (current_byte & 0b11110000) == 0b11100000:
+            num_bytes = 3
+        elif (current_byte & 0b11111000) == 0b11110000:
+            num_bytes = 4
         else:
-            if (byte & mask1) == 0 or (byte & mask2) != 0:
-                return False
-            num_bytes -= 1
+            return False  # Invalid starting byte
 
-    return num_bytes == 0
+        if i + num_bytes > len(data):
+            return False
+
+        for j in range(1, num_bytes):
+            if not is_continuation(data[i + j]):
+                return False
+
+        i += num_bytes
+
+    return True
