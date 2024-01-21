@@ -1,47 +1,31 @@
 #!/usr/bin/node
 
 const request = require('request');
+const arg = process.argv[2];
 
-function getMovieCharacters (movieId) {
-  const url = `https://swapi.dev/api/films/${movieId}/`;
-
-  request(url, { json: true }, (error, response, body) => {
-    if (error) {
-      console.error(`Error: ${error.message}`);
-      return;
-    }
-
-    if (response.statusCode !== 200) {
-      console.error(`Error: Unable to fetch data. Status Code: ${response.statusCode}`);
-      return;
-    }
-
-    const charactersUrls = body.characters;
-
-    charactersUrls.forEach(characterUrl => {
-      request(characterUrl, { json: true }, (error, response, characterBody) => {
-        if (error) {
-          console.error(`Error fetching character data: ${error.message}`);
-          return;
-        }
-
-        console.log(characterBody.name);
-      });
+async function retPro (url) {
+  return new Promise(function (resolve, reject) {
+    request(url, function (err, res, body) {
+      resolve(JSON.parse(body).name);
+      if (err) throw err;
     });
   });
 }
 
-if (process.argv.length !== 3) {
-  console.error('Usage: node script.js <movie_id>');
-  process.exit(1);
+async function chars () {
+  return new Promise(function (resolve, reject) {
+    request(`https://swapi-api.alx-tools.com/api/films/${arg}`, function (err, res, bod) {
+      resolve(JSON.parse(bod).characters);
+      if (err) throw err;
+    });
+  });
 }
 
-const movieId = process.argv[2];
-
-const parsedMovieId = parseInt(movieId, 10);
-if (isNaN(parsedMovieId)) {
-  console.error('Error: Please provide a valid movie_id (integer).');
-  process.exit(1);
+async function names () {
+  const thischars = await chars();
+  for (let i = 0; i < thischars.length; i++) {
+    console.log(await retPro(thischars[i]));
+  }
 }
 
-getMovieCharacters(parsedMovieId);
+names();
